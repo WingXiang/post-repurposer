@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
+/* 品牌色系（釐清規格 §4.2） */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand: #2a4189; /* 主色 */
+  --brand-dark: #1f3068; /* 主色 hover */
+  --accent: #c67e13; /* 重點色 */
+  --accent-soft: #fbf2e3; /* 重點色淺底 */
+  --bg: #f8f9fc; /* 頁面背景 */
+  --card: #ffffff; /* 卡片背景 */
+  --border: #c8ccda; /* 邊框 */
+  --ink: #1f2433; /* 主要文字 */
+  --muted: #6b7280; /* 次要文字 */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-line: var(--border);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --font-sans:
+    var(--font-noto-sans-tc), -apple-system, BlinkMacSystemFont, "PingFang TC",
+    "Microsoft JhengHei", "Segoe UI", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--bg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family:
+    var(--font-noto-sans-tc), -apple-system, BlinkMacSystemFont, "PingFang TC",
+    "Microsoft JhengHei", "Segoe UI", sans-serif;
+}
+
+/* 載入轉圈 */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spinner {
+  animation: spin 0.8s linear infinite;
 }
