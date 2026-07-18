@@ -10,7 +10,11 @@ function getRedis(): Redis | null {
   if (redis !== undefined) return redis;
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  redis = url && token ? new Redis({ url, token }) : null;
+  try {
+    redis = url && token ? new Redis({ url, token }) : null;
+  } catch {
+    redis = null; // 設定值格式有誤時 fail-open，不阻擋使用者
+  }
   return redis;
 }
 
