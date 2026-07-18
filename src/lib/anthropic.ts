@@ -4,7 +4,8 @@ import { getApiKey } from "./env";
 
 const MODEL = "claude-sonnet-4-6";
 const HARD_TIMEOUT_MS = 25_000; // 釐清規格 D14
-const MAX_RETRIES = 2; // 釐清規格 D13
+const MAX_RETRIES = 3; // 釐清規格 D13
+const MAX_BACKOFF_MS = 4_000; // 上限，避免退避時間超出 Vercel maxDuration 預算
 
 let client: Anthropic | null = null;
 
@@ -30,6 +31,17 @@ function getClient(): Anthropic {
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+// 429 忙線時 Anthropic 會回 retry-after 秒數，優先照它等；沒有就用指數退避
+function getRetryDelayMs(err: unknown, attempt: number): number {
+  const headers = (err as { headers?: Headers })?.headers;
+  const retryAfter = headers?.get?.("retry-after");
+  const retryAfterMs = retryAfter ? Number(retryAfter) * 1000 : NaN;
+  if (!Number.isNaN(retryAfterMs) && retryAfterMs > 0) {
+    return Math.min(retryAfterMs, MAX_BACKOFF_MS);
+  }
+  return Math.min(400 * Math.pow(2, attempt), MAX_BACKOFF_MS); // 400ms, 800ms, 1600ms...
 }
 
 export interface ClaudeCallOpts {
@@ -64,7 +76,7 @@ export async function callClaude(opts: ClaudeCallOpts): Promise<string> {
         status === 529 ||
         (status !== undefined && status >= 500);
       if (attempt < MAX_RETRIES && retriable) {
-        await sleep(400 * Math.pow(2, attempt)); // 400ms, 800ms 指數退避
+        await sleep(getRetryDelayMs(err, attempt));
         continue;
       }
       throw err;
