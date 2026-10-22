@@ -116,7 +116,6 @@ export default function Home() {
   // loading 文案輪播
   useEffect(() => {
     if (!loading) return;
-    setLoadingMsg(0);
     const id = setInterval(
       () => setLoadingMsg((m) => (m + 1) % LOADING_MESSAGES.length),
       2000,
@@ -145,6 +144,7 @@ export default function Home() {
 
   const handleGenerate = useCallback(async () => {
     if (!canSubmit) return;
+    setLoadingMsg(0);
     setLoading(true);
     setError(null);
     try {
